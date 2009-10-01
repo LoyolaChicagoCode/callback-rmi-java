@@ -1,0 +1,39 @@
+<project name="ClickCounterRmi" default="compile" basedir=".">
+
+  <property name="src" location="src"/>
+  <property name="output" location="bin"/>
+  <property name="classpath" value="${output}"/>
+  <property name="codebase" value="file://${basedir}/${output}" />
+  <property name="policy" location="policy" />
+  <property name="serverhost" value="localhost" />
+	
+  <target name="init">
+    <tstamp/>
+    <mkdir dir="${output}"/>
+  </target>
+
+  <target name="compile" depends="init" description="compile the source " >
+  	<javac srcdir="${src}" destdir="${output}"/>
+	<rmic base="${output}" includes="**/*Impl.class" stubversion="1.2"></rmic>
+  </target>
+
+  <target name="clean" description="clean up" >
+    <delete dir="${output}"/>
+  </target>
+
+  <target name="client" depends="compile" description="run client" >
+    <java fork="true" classpath="${classpath}" classname="rmicallback.ClientImpl">
+       <jvmarg value="-Djava.rmi.server.codebase=${codebase}"/>
+       <jvmarg value="-Djava.security.policy=${policy}"/>
+       <arg value="${serverhost}"/>
+    </java>
+  </target>
+
+  <target name="server" depends="compile" description="run server" >
+    <java fork="true" classpath="${classpath}" classname="rmicallback.ServerImpl">
+       <jvmarg value="-Djava.rmi.server.codebase=${codebase}"/>
+       <jvmarg value="-Djava.security.policy=${policy}"/>
+    </java>
+  </target>
+
+</project>
